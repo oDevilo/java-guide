@@ -126,5 +126,7 @@ public class JQL {
 
         System.out.println(graphQL.execute("{queryUserById(id:15){id,name,age,card{cardNumber,userId}}}").toSpecification());
         System.out.println(graphQL.execute("{queryUser{id name age card{cardNumber userId}}}").toSpecification());
+        System.out.println(graphQL.execute("{queryUserById(id:15){id,name,card{cardNumber,userId}}}").toSpecification());
+        System.out.println(graphQL.execute("{queryUserById(id:15){id,name,test,card{cardNumber,userId}}}").toSpecification());
     }
 }
