@@ -243,6 +243,28 @@ public class FluxTest {
         map.publishOn(Schedulers.newParallel("P")).subscribe(System.out::println);
     }
 
+    /**
+     * main 线程等于把数据
+     * 哪个线程调用 publisher 的 subscribe 就执行对应逻辑
+     * @throws InterruptedException
+     */
+    @Test
+    public void thread() throws InterruptedException {
+        Flux<Integer> range = Flux.range(1, 3);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                range.subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) {
+                        System.out.println(Thread.currentThread().getName() + " " + integer);
+                    }
+                });
+            }
+        }).start();
+        Thread.sleep(1000);
+    }
+
     static class User {
         int age;
 
