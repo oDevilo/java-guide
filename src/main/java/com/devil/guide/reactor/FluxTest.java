@@ -211,6 +211,37 @@ public class FluxTest {
         map.publishOn(Schedulers.newParallel("P")).subscribe(System.out::println);
     }
 
+    /**
+     * publishOn 影响在其之后的 operator执行的线程池
+     * subscribeOn 则会从源头影响整个执行过程
+     * publishOn 的影响范围和它的位置有关，而 subscribeOn的影响范围则和位置无关
+     *
+     * 从下面执行结果可以看出：
+     * subscribeOn 定义在publishOn之后，但是却从源头开始生效。
+     * 而在 publishOn执行之后，线程池变更为 publishOn 所定义的
+     *
+     *
+     */
+    @Test
+    public void publishOnAndSubscribeOn() throws InterruptedException {
+        Flux.just("tom")
+                .map(s -> {
+                    System.out.println("[map] Thread name: " + Thread.currentThread().getName());
+                    return s.concat("@mail.com");
+                })
+                .publishOn(Schedulers.newSingle("P"))
+                .filter(s -> {
+                    System.out.println("[filter] Thread name: " + Thread.currentThread().getName());
+                    return s.startsWith("t");
+                })
+                .subscribeOn(Schedulers.newSingle("S"))
+                .subscribe(s -> {
+                    System.out.println("[subscribe] Thread name: " + Thread.currentThread().getName());
+                    System.out.println(s);
+                });
+        Thread.sleep(2000);
+    }
+
     @Test
     public void buffer() {
         Flux<List<Integer>> map = Flux.range(1, 3).map(v -> {
@@ -246,6 +277,7 @@ public class FluxTest {
     /**
      * main 线程等于把数据
      * 哪个线程调用 publisher 的 subscribe 就执行对应逻辑
+     *
      * @throws InterruptedException
      */
     @Test
