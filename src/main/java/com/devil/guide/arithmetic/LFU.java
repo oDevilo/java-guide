@@ -1,5 +1,7 @@
 package com.devil.guide.arithmetic;
 
+import org.limbo.utils.verifies.Verifies;
+
 import java.util.*;
 
 /**
@@ -30,6 +32,8 @@ public class LFU {
     /** 最小频率 */
     private int minFrequently;
 
+    private static int EMPTY = -999;
+
     private int putScore;
 
     private int getScore;
@@ -45,7 +49,7 @@ public class LFU {
 
     public int get(int key) {
         if (!kv.containsKey(key)) {
-            return -999;
+            return EMPTY;
         }
         // 增加使用频率
         incrFrequently(key, getScore);
@@ -131,17 +135,15 @@ public class LFU {
         LFU lfu = new LFU(2, 1, 2);
         lfu.put(1, 1);
         lfu.put(1, 2);
-        lfu.put(1, 3);
+        lfu.put(1, 3); // 1 - 3
         lfu.put(2, 3);
-        lfu.put(2, 4);
+        lfu.put(2, 4); // 2 - 2
         lfu.put(3, 3);
-        lfu.get(3);
-        lfu.get(3);
-        lfu.put(4, 4);
-        lfu.put(5, 6);
-        lfu.put(6, 6);
-        lfu.put(6, 7);
-        lfu.put(7, 7);
+        // 2 被移除 所以3可以获取到
+        Verifies.verify(lfu.get(3) == 3); // 3 - 3
+        lfu.put(4, 4); // 4 - 1
+        // 应该移除掉较早的 1
+        Verifies.verify(lfu.get(1) == EMPTY);
     }
 
 }
