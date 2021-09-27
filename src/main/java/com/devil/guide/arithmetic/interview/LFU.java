@@ -1,4 +1,4 @@
-package com.devil.guide.arithmetic;
+package com.devil.guide.arithmetic.interview;
 
 import org.limbo.utils.verifies.Verifies;
 

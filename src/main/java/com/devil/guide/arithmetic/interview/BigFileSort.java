@@ -1,4 +1,4 @@
-package com.devil.guide.arithmetic;
+package com.devil.guide.arithmetic.interview;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
