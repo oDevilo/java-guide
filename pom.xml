@@ -15,12 +15,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>30.1.1-jre</version>
-        </dependency>
-
         <!-- Reactor -->
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -40,6 +34,13 @@
             <groupId>io.github.limbo-world</groupId>
             <artifactId>utils</artifactId>
             <version>1.0.2</version>
+        </dependency>
+
+        <!-- 工具包以及cache -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0-jre</version>
         </dependency>
 
         <!-- Jackson -->
