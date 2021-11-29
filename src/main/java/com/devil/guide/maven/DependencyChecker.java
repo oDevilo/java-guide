@@ -34,6 +34,14 @@ public class DependencyChecker {
      * 是否打印依赖树
      */
     private final boolean showDependencyTree;
+    /**
+     * 不满足的版本
+     */
+    private int dissatisfyVersionNum;
+    /**
+     * 冲突数
+     */
+    private int conflictNum;
 
     public DependencyChecker(String projectPath, String configPath, boolean showDependencyTree) throws Exception {
         this.projectPath = projectPath;
@@ -46,6 +54,9 @@ public class DependencyChecker {
 
     public void check() throws Exception {
         doCheckModel(projectPath);
+
+        System.out.println("dissatisfyVersionNum:" + dissatisfyVersionNum);
+        System.out.println("conflictNum:" + conflictNum);
     }
 
     public void doCheckModel(String path) throws Exception {
@@ -96,6 +107,7 @@ public class DependencyChecker {
             String msg = "find version: " + modelDependency.getVersion();
             if (modelDependency.greaterThan(neededDependency) < 0) {
                 msg += " dissatisfy in line: " + line;
+                dissatisfyVersionNum++;
             }
             System.out.println(msg);
         }
@@ -105,13 +117,14 @@ public class DependencyChecker {
         Map<String, Set<String>> dependencyMap = new HashMap<>();
         for (String line : lines) {
             Dependency modelDependency = getDependencyFromTreeLine(line);
-            String name = modelDependency.getGroupId()+":"+modelDependency.getArtifactId();
+            String name = modelDependency.getGroupId() + ":" + modelDependency.getArtifactId();
             dependencyMap.putIfAbsent(name, new HashSet<>());
             dependencyMap.get(name).add(modelDependency.getVersion());
         }
         for (Map.Entry<String, Set<String>> entry : dependencyMap.entrySet()) {
             if (entry.getValue().size() > 1) {
                 System.out.println("Conflicts dependency: " + entry.getKey());
+                conflictNum++;
                 for (String v : entry.getValue()) {
                     System.out.println(v);
                 }
