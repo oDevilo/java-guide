@@ -1,5 +1,7 @@
 package com.devil.guide.maven;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author Devil
  * @since 2021/11/29
@@ -32,9 +34,14 @@ public class Dependency {
         int length = Math.min(v1.length, v2.length);
         int diff = v1.length - v2.length;
         for (int i = 0; i < length; i++) {
-            if (v1[i].compareTo(v2[i]) > 0) {
+            // 如果不能转为数字 直接返回失败 人工去判断
+            if (!StringUtils.isNumeric(v1[i]) || !StringUtils.isNumeric(v2[i])) {
+                return -1;
+            }
+
+            if (Integer.parseInt(v1[i]) > Integer.parseInt(v2[i])) {
                 return 1;
-            } else if (v1[i].compareTo(v2[i]) < 0) {
+            } else if (Integer.parseInt(v1[i]) < Integer.parseInt(v2[i])) {
                 return -1;
             }
         }

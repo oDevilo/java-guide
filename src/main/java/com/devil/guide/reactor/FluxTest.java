@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.SynchronousSink;
 import reactor.core.scheduler.Schedulers;
 
@@ -29,15 +30,66 @@ public class FluxTest {
         Flux.range(1, 3).subscribe(System.out::println);
     }
 
+    /**
+     * create 支持多线程操作
+     */
     @Test
     public void create() {
-        Flux.create(sink -> {
-            //向下游发布元素
-            sink.next("helloword");
-            sink.next("helloword2");
-            //结束发布元素
-            sink.complete();
+        Flux.create(new Consumer<FluxSink<String>>() {
+            @Override
+            public void accept(FluxSink<String> fluxSink) {
+                //向下游发布元素
+                fluxSink.next("helloword");
+                fluxSink.next("helloword2");
+                //结束发布元素
+                fluxSink.complete();
+            }
         }).subscribe(System.out::println);//subscribe发布消息，System.out.println为消费者，消费消息;
+    }
+
+    /**
+     * push 和 create 一样支持异步操作 但同时只能由一个线程来调用next、complete或者error操作，所以是单线程的
+     */
+    @Test
+    public void push() {
+        Flux.push(new Consumer<FluxSink<String>>() {
+            @Override
+            public void accept(FluxSink<String> fluxSink) {
+                //向下游发布元素
+                fluxSink.next("helloword");
+                fluxSink.next("helloword2");
+                //结束发布元素
+                fluxSink.complete();
+            }
+        }).subscribe(System.out::println);
+    }
+
+    @Test
+    public void limitRate() {
+        Flux.range(1, 100).limitRate(5).subscribeWith(new BaseSubscriber<Integer>() {
+            @Override
+            protected void hookOnSubscribe(Subscription subscription) {
+                subscription.request(10);
+//                System.out.println("=====");
+            }
+
+            @Override
+            protected void hookOnNext(Integer value) {
+                System.out.println(value);
+//                request(10);
+//                System.out.println("=====");
+            }
+
+            @Override
+            protected void hookOnError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            protected void hookOnComplete() {
+                System.out.println("Done");
+            }
+        });
     }
 
     /**
@@ -99,7 +151,7 @@ public class FluxTest {
             @Override
             public Integer apply(Integer state, SynchronousSink<String> sink) {
                 sink.next("3 x " + state + " = " + 3 * state);
-                if (state == 10) sink.complete(); // 合适停止
+                if (state == 10) sink.complete(); // 何时停止
                 return state + 1;
             }
         }).subscribe(new Consumer<String>() {
@@ -116,7 +168,7 @@ public class FluxTest {
     @Test
     public void onError() {
         Flux.range(1, 4).map(i -> {
-            if (i <= 3) return i;
+            if (i <= 3) return i + " x";
             throw new RuntimeException("Got to 4");
         }).subscribe(System.out::println,
                 error -> System.err.println("Error: " + error));

@@ -10,7 +10,7 @@ public class TestMaven {
 
     @Test
     public void testVersionChecker() throws Exception {
-        DependencyChecker checker = new DependencyChecker("/Users/devil/work/workspace/netease/music-musician-mission", "/data/version.json", false);
+        DependencyChecker checker = new DependencyChecker("/Users/devil/work/workspace/netease/xprofiler-gateway", "/data/version.json", false);
         checker.check();
     }
 }
